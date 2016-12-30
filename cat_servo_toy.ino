@@ -60,12 +60,11 @@ char serialout [100];
 
 
 // Servo positions we randomly pick for either axis to come up with a random new position each time
-// Array with 13 elements
+// Array with 6 elements
 
-const int posArrayLow [] = {1100, 1200, 1300};
-const int posArrayHigh [] = {1600, 1700, 1800};
-const int posArray [] = {1100,1200,1300,1700, 1800, 1900};
+const int posArray [] = {1100,1200,1300,1700,1800,1900};
 
+int posArraySize = 6;
 
 int moveTimer = 0;
 
@@ -254,29 +253,21 @@ void movef(float ecycle,float s1,float w81,float spa1,float spb1,float yprev1,fl
 } //end of void subroutine function for entire move function 
 
 
-// start of program meat 
 void setup() 
 {   
   Serial.begin(115200);
 
-  servo1.attach(6);     //signal of servo#1 to pin 3
+  servo1.attach(6);     //signal of servo#1 to pin 6
   servo2.attach(5);     //signal of servo#2 to pin 5
   servo1.writeMicroseconds(1500);  
   servo2.writeMicroseconds(1500);
 
-  pinMode(7, OUTPUT);
-  digitalWrite(7, HIGH);
+  pinMode(7, OUTPUT); // laser diode on pin 7
+  digitalWrite(7, HIGH); // ... which we turn on
 
-  
 } 
 void loop() 
 {  
-  //servo lockdown when power is on
-
-  
-
-  //notes: 
-//key: 
 
 // ecycle = time acts as the cut off when all servos have completed their one way motion 
 // s# =number of times sine wave repeats
@@ -285,18 +276,15 @@ void loop()
 // spb# = end speed, range: 1-25 or 1 fast, 25 slow   
 // yprev# = previous servo position 
 // ynext# = next position 
-// 
-//Servo servo1;   
-//Servo servo2;   
-//
-
- //notes end
   
   svo1c = svo1o;
   svo2c = svo2o;
  
-  svo1o = posArray [random (0, 5)];
-  svo2o = posArray [random (0, 5)];
+  while (svo1o == svo1c || svo2o == svo2c) {
+    svo1o = posArray [random (0, posArraySize-1)];
+    svo2o = posArray [random (0, posArraySize-1)];
+  }
+
   sprintf(serialout, "[Starting move] svo1 %d->%d || svo2 %d->%d", svo1c, svo1o, svo2c, svo2o);
   Serial.println(serialout);
   moveTimer = now();
@@ -305,20 +293,8 @@ void loop()
   Serial.println(String("[Move completed] ") + (now()-moveTimer) + "sec");       
   //delay(2000); 
 
-  svo1c = svo1o;
-  svo2c = svo2o;
- 
-  svo1o = posArray [random (0, 5)];
-  svo2o = posArray [random (0, 5)];
-  sprintf(serialout, "[Starting move] svo1 %d->%d || svo2 %d->%d", svo1c, svo1o, svo2c, svo2o);
-  Serial.println(serialout);
-    moveTimer = now();
-  //key: movef(ecycle,s1, w81,spa1,spb1,yprev1,ynext1,s2, w82,spa2,spb2,yprev2,ynext2)
-         movef(event , 1, 100,3  ,10  ,svo1c ,svo1o ,1 ,100,3  ,10   ,svo2c ,svo2o);
-  Serial.println(String("[Move completed] ") + (now()-moveTimer) + "sec");              
-  //delay(2000); 
 
-} //end void loop      
+}   
   
 
 
